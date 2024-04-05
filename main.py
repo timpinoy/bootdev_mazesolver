@@ -11,6 +11,8 @@ def main():
     cell3 = Cell(win)
     cell3.bottom = False
     cell3.draw(20, 60, 40, 80)
+    cell1.draw_move(cell3)
+    cell2.draw_move(cell3, undo=True)
 
     win.wait_for_close()
 

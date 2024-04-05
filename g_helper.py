@@ -73,3 +73,12 @@ class Cell:
         if self.bottom:
             line = Line(Point(self.__x1,self.__y2), Point(self.__x2,self.__y2))
             self.__window.draw_line(line, "red")
+
+    def draw_move(self, to_cell, undo=False):
+        if undo:
+            color = "gray"
+        else:
+            color = "red"
+        p1 = Point((self.__x1 + self.__x2) // 2, (self.__y1 + self.__y2) //2)
+        p2 = Point((to_cell.__x1 + to_cell.__x2) // 2, (to_cell.__y1 + to_cell.__y2) //2)
+        self.__window.draw_line(Line(p1, p2), color)

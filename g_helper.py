@@ -46,7 +46,7 @@ class Line:
 
 
 class Cell:
-    def __init__(self, window):
+    def __init__(self, window=None):
         self._window = window
         self.left = True
         self.right = True
@@ -62,18 +62,19 @@ class Cell:
         self._y1 = y1
         self._x2 = x2
         self._y2 = y2
-        if self.left:
-            line = Line(Point(self._x1,self._y1), Point(self._x1,self._y2))
-            self._window.draw_line(line, "red")
-        if self.right:
-            line = Line(Point(self._x2,self._y1), Point(self._x2,self._y2))
-            self._window.draw_line(line, "red")
-        if self.top:
-            line = Line(Point(self._x1,self._y1), Point(self._x2,self._y1))
-            self._window.draw_line(line, "red")
-        if self.bottom:
-            line = Line(Point(self._x1,self._y2), Point(self._x2,self._y2))
-            self._window.draw_line(line, "red")
+        if self._window:
+            if self.left:
+                line = Line(Point(self._x1,self._y1), Point(self._x1,self._y2))
+                self._window.draw_line(line, "red")
+            if self.right:
+                line = Line(Point(self._x2,self._y1), Point(self._x2,self._y2))
+                self._window.draw_line(line, "red")
+            if self.top:
+                line = Line(Point(self._x1,self._y1), Point(self._x2,self._y1))
+                self._window.draw_line(line, "red")
+            if self.bottom:
+                line = Line(Point(self._x1,self._y2), Point(self._x2,self._y2))
+                self._window.draw_line(line, "red")
 
     def draw_move(self, to_cell, undo=False):
         if undo:
@@ -86,9 +87,9 @@ class Cell:
 
 
 class Maze:
-    def __init__(self, window, x1, y1,
+    def __init__(self,  x1, y1,
                  num_rows, num_cols,
-                 cell_size_x, cell_size_y):
+                 cell_size_x, cell_size_y, window=None):
        self._window = window
        self._x1 = x1
        self._y1 = y1
@@ -124,5 +125,6 @@ class Maze:
         self._animate()
 
     def _animate(self):
-        self._window.redraw()
-        time.sleep(0.05)
+        if self._window:
+            self._window.redraw()
+            time.sleep(0.05)

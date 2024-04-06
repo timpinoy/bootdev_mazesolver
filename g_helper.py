@@ -1,30 +1,31 @@
+import time
 from tkinter import Tk, BOTH, Canvas
 
 class Window:
     def __init__(self, width, height):
-        self.__root = Tk()
-        self.__root.title("MazeSolver")
-        self.__root.protocol("WM_DELETE_WINDOW", self.close)
-        self.__canvas = Canvas(self.__root,
+        self._root = Tk()
+        self._root.title("MazeSolver")
+        self._root.protocol("WM_DELETE_WINDOW", self.close)
+        self._canvas = Canvas(self._root,
                                width=width,
                                height=height)
-        self.__canvas.pack()
-        self.__is_running = False
+        self._canvas.pack()
+        self._is_running = False
 
     def redraw(self):
-        self.__root.update_idletasks()
-        self.__root.update()
+        self._root.update_idletasks()
+        self._root.update()
 
     def wait_for_close(self):
-        self.__is_running = True
-        while self.__is_running:
+        self._is_running = True
+        while self._is_running:
             self.redraw()
 
     def close(self):
-        self.__is_running = False
+        self._is_running = False
         
     def draw_line(self, line, fill_color):
-        line.draw(self.__canvas, fill_color)
+        line.draw(self._canvas, fill_color)
 
 
 class Point:
@@ -46,39 +47,82 @@ class Line:
 
 class Cell:
     def __init__(self, window):
-        self.__window = window
+        self._window = window
         self.left = True
         self.right = True
         self.top = True
         self.bottom = True
-        self.__x1 = None
-        self.__y1 = None
-        self.__x2 = None
-        self.__y2 = None
+        self._x1 = None
+        self._y1 = None
+        self._x2 = None
+        self._y2 = None
 
     def draw(self, x1, y1, x2, y2):
-        self.__x1 = x1
-        self.__y1 = y1
-        self.__x2 = x2
-        self.__y2 = y2
+        self._x1 = x1
+        self._y1 = y1
+        self._x2 = x2
+        self._y2 = y2
         if self.left:
-            line = Line(Point(self.__x1,self.__y1), Point(self.__x1,self.__y2))
-            self.__window.draw_line(line, "red")
+            line = Line(Point(self._x1,self._y1), Point(self._x1,self._y2))
+            self._window.draw_line(line, "red")
         if self.right:
-            line = Line(Point(self.__x2,self.__y1), Point(self.__x2,self.__y2))
-            self.__window.draw_line(line, "red")
+            line = Line(Point(self._x2,self._y1), Point(self._x2,self._y2))
+            self._window.draw_line(line, "red")
         if self.top:
-            line = Line(Point(self.__x1,self.__y1), Point(self.__x2,self.__y1))
-            self.__window.draw_line(line, "red")
+            line = Line(Point(self._x1,self._y1), Point(self._x2,self._y1))
+            self._window.draw_line(line, "red")
         if self.bottom:
-            line = Line(Point(self.__x1,self.__y2), Point(self.__x2,self.__y2))
-            self.__window.draw_line(line, "red")
+            line = Line(Point(self._x1,self._y2), Point(self._x2,self._y2))
+            self._window.draw_line(line, "red")
 
     def draw_move(self, to_cell, undo=False):
         if undo:
             color = "gray"
         else:
             color = "red"
-        p1 = Point((self.__x1 + self.__x2) // 2, (self.__y1 + self.__y2) //2)
+        p1 = Point((self._x1 + self._x2) // 2, (self._y1 + self._y2) //2)
         p2 = Point((to_cell.__x1 + to_cell.__x2) // 2, (to_cell.__y1 + to_cell.__y2) //2)
-        self.__window.draw_line(Line(p1, p2), color)
+        self._window.draw_line(Line(p1, p2), color)
+
+
+class Maze:
+    def __init__(self, window, x1, y1,
+                 num_rows, num_cols,
+                 cell_size_x, cell_size_y):
+       self._window = window
+       self._x1 = x1
+       self._y1 = y1
+       self._num_rows = num_rows
+       self._num_cols = num_cols
+       self._cell_size_x = cell_size_x
+       self._cell_size_y = cell_size_y
+       self._create_cells()
+
+    def _create_cells(self):
+        self._cells = []
+        for i in range(self._num_rows):
+            line = []
+            for j in range(self._num_cols):
+                c = Cell(self._window)
+                line.append(c)
+            self._cells.append(line)
+        
+        for i in range(len(self._cells)):
+            for j in range(len(self._cells[i])):
+                self._draw_cell(i, j)
+
+    def _draw_cell(self, i, j):
+        c = self._cells[i][j]
+        x1 = self._x1 + self._cell_size_x * j
+        y1 = self._y1 + self._cell_size_y * i
+        x2 = self._x1 + self._cell_size_x * (j + 1)
+        y2 = self._y1 + self._cell_size_y * (i + 1)
+        c.draw(x1, y1, x2, y2)
+        c.left = True
+        c.top = False
+
+        self._animate()
+
+    def _animate(self):
+        self._window.redraw()
+        time.sleep(0.05)

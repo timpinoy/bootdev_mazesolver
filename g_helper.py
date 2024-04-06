@@ -8,7 +8,8 @@ class Window:
         self._root.protocol("WM_DELETE_WINDOW", self.close)
         self._canvas = Canvas(self._root,
                                width=width,
-                               height=height)
+                               height=height,
+                               bg="white")
         self._canvas.pack()
         self._is_running = False
 
@@ -63,18 +64,30 @@ class Cell:
         self._x2 = x2
         self._y2 = y2
         if self._window:
+            # left
+            line = Line(Point(self._x1,self._y1), Point(self._x1,self._y2))
             if self.left:
-                line = Line(Point(self._x1,self._y1), Point(self._x1,self._y2))
-                self._window.draw_line(line, "red")
+                self._window.draw_line(line, "black")
+            else:
+                self._window.draw_line(line, "white")
+            # right
+            line = Line(Point(self._x2,self._y1), Point(self._x2,self._y2))
             if self.right:
-                line = Line(Point(self._x2,self._y1), Point(self._x2,self._y2))
-                self._window.draw_line(line, "red")
+                self._window.draw_line(line, "black")
+            else:
+                self._window.draw_line(line, "white")
+            # top
+            line = Line(Point(self._x1,self._y1), Point(self._x2,self._y1))
             if self.top:
-                line = Line(Point(self._x1,self._y1), Point(self._x2,self._y1))
-                self._window.draw_line(line, "red")
+                self._window.draw_line(line, "black")
+            else:
+                self._window.draw_line(line, "white")
+            # bottom
+            line = Line(Point(self._x1,self._y2), Point(self._x2,self._y2))
             if self.bottom:
-                line = Line(Point(self._x1,self._y2), Point(self._x2,self._y2))
-                self._window.draw_line(line, "red")
+                self._window.draw_line(line, "black")
+            else:
+                self._window.draw_line(line, "white")
 
     def draw_move(self, to_cell, undo=False):
         if undo:
@@ -98,6 +111,7 @@ class Maze:
        self._cell_size_x = cell_size_x
        self._cell_size_y = cell_size_y
        self._create_cells()
+       self._break_entrance_and_exit()
 
     def _create_cells(self):
         self._cells = []
@@ -119,8 +133,6 @@ class Maze:
         x2 = self._x1 + self._cell_size_x * (j + 1)
         y2 = self._y1 + self._cell_size_y * (i + 1)
         c.draw(x1, y1, x2, y2)
-        c.left = True
-        c.top = False
 
         self._animate()
 
@@ -128,3 +140,9 @@ class Maze:
         if self._window:
             self._window.redraw()
             time.sleep(0.05)
+
+    def _break_entrance_and_exit(self):
+        self._cells[0][0].top = False
+        self._draw_cell(0, 0)
+        self._cells[self._num_rows-1][self._num_cols-1].bottom = False
+        self._draw_cell(self._num_rows-1, self._num_cols-1)

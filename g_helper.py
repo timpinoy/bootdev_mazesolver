@@ -1,4 +1,5 @@
 import time
+import random
 from tkinter import Tk, BOTH, Canvas
 
 class Window:
@@ -53,6 +54,7 @@ class Cell:
         self.right = True
         self.top = True
         self.bottom = True
+        self.visited = False
         self._x1 = None
         self._y1 = None
         self._x2 = None
@@ -102,7 +104,8 @@ class Cell:
 class Maze:
     def __init__(self,  x1, y1,
                  num_rows, num_cols,
-                 cell_size_x, cell_size_y, window=None):
+                 cell_size_x, cell_size_y,
+                 window=None, seed=None):
        self._window = window
        self._x1 = x1
        self._y1 = y1
@@ -110,8 +113,11 @@ class Maze:
        self._num_cols = num_cols
        self._cell_size_x = cell_size_x
        self._cell_size_y = cell_size_y
+       if not seed:
+           random.seed(seed)
        self._create_cells()
        self._break_entrance_and_exit()
+       self._break_walls_r(0, 0)
 
     def _create_cells(self):
         self._cells = []
@@ -146,3 +152,50 @@ class Maze:
         self._draw_cell(0, 0)
         self._cells[self._num_rows-1][self._num_cols-1].bottom = False
         self._draw_cell(self._num_rows-1, self._num_cols-1)
+
+    def _break_walls_r(self, i, j):
+        cur_cell = self._cells[i][j]
+        cur_cell.visited = True
+        while True:
+            # get list of possible moves
+            possible_move_cells = []
+            ## L
+            if j > 0:
+                if not self._cells[i][j-1].visited:
+                    possible_move_cells.append("L")
+            ## R
+            if j < self._num_cols - 1:
+                if not self._cells[i][j+1].visited:
+                    possible_move_cells.append("R")
+            ## U
+            if i > 0:
+                if not self._cells[i-1][j].visited:
+                    possible_move_cells.append("U")
+            ## D
+            if i < self._num_rows - 1:
+                if not self._cells[i+1][j].visited:
+                    possible_move_cells.append("D")
+            print(possible_move_cells)
+            if len(possible_move_cells) == 0:
+                self._draw_cell(i, j)
+                break
+            else:
+                r = random.randrange(len(possible_move_cells))
+                direction = possible_move_cells[r]
+                if direction == "L":
+                    cur_cell.left = False
+                    self._cells[i][j-1].right = False
+                    self._break_walls_r(i, j-1)
+                if direction == "R":
+                    cur_cell.right = False
+                    self._cells[i][j+1].left = False
+                    self._break_walls_r(i, j+1)
+                if direction == "U":
+                    cur_cell.top = False
+                    self._cells[i-1][j].bottom = False
+                    self._break_walls_r(i-1, j)
+                if direction == "D":
+                    cur_cell.bottom = False
+                    self._cells[i+1][j].top = False
+                    self._break_walls_r(i+1, j)
+

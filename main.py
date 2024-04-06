@@ -14,7 +14,7 @@ def main():
     #cell1.draw_move(cell3)
     #cell2.draw_move(cell3, undo=True)
 
-    maze = Maze(20, 20, 10, 20, 20, 20, win)
+    maze = Maze(20, 20, 8, 8, 20, 20, window=win)
 
     win.wait_for_close()
 

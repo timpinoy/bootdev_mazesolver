@@ -118,6 +118,7 @@ class Maze:
        self._create_cells()
        self._break_entrance_and_exit()
        self._break_walls_r(0, 0)
+       self._reset_cells_visited()
 
     def _create_cells(self):
         self._cells = []
@@ -175,7 +176,6 @@ class Maze:
             if i < self._num_rows - 1:
                 if not self._cells[i+1][j].visited:
                     possible_move_cells.append("D")
-            print(possible_move_cells)
             if len(possible_move_cells) == 0:
                 self._draw_cell(i, j)
                 break
@@ -199,3 +199,7 @@ class Maze:
                     self._cells[i+1][j].top = False
                     self._break_walls_r(i+1, j)
 
+    def _reset_cells_visited(self):
+        for i in range(self._num_rows):
+            for j in range(self._num_cols):
+                self._cells[i][j].visited = False
